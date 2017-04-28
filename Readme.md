@@ -15,7 +15,7 @@ programms or shell function call `python pomsky.py`.
 #### Warning
 
 There is **no security** logic in pomsky and it is not at all suitable for production!
-So if you run pomsky as root (not recommended) all commands will be executes as root.  
+So if you run pomsky as root (not recommended) all commands will be executed as root.  
 
 ## What do i need?
 
