@@ -32,7 +32,7 @@ curl https://raw.githubusercontent.com/mperlet/pomsky/master/pomsky.py -o pomsky
 
 ```
 python pomsky.py -h
-```
+
 pomsky v0.0.1
 usage: python pomsky.py [options]
 Available options are:
@@ -54,13 +54,17 @@ Here some examples what you can do with pomsky.
 
 ### Video-Downloader 
 
-`python pomsky.py -w"video_links.txt" -a0"youtube-dl --batch-file video_links.txt"`
+```
+python pomsky.py -w"video_links.txt" -a0"youtube-dl --batch-file video_links.txt"
+```
 
 That creates a simple web ui for [youtube-dl](https://github.com/rg3/youtube-dl). 
 
 ### Start, stop and edit a service
 
-`python pomsky.py -w"/etc/systemd/my_service.service" -a0"systemctl start my_service.service" -a0"systemctl stop my_service.service"`
+```
+python pomsky.py -w"/etc/systemd/my_service.service" -a0"systemctl start my_service.service" -a0"systemctl stop my_service.service"
+```
 
 ## Where are the tests?
 
@@ -91,10 +95,6 @@ clang $(python3-config --cflags --ldflags) pomsky.c -o pomsky
 # run pomsky
 ./pomsky
 ```
-
-## Why?
-
--> pboehm webshell
 
 ## TODO-List
 
