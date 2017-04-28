@@ -132,6 +132,7 @@ import time
 benchmark = []
 def main():
     """ Entry-point with REPL """
+    print("Serving pomsky on 0.0.0.0 port %s ..." % PORT)
     if verbose:
         print('staring pomsky...\nport:\t\t%s\nworkingfile:\t%s\ncommand:\t%s\ndebug:\t\t%s' % (
     PORT, workingfile, additional_cmds, debug_cmd))
