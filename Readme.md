@@ -1,5 +1,6 @@
 # pomsky - simplest shell web-ui
-![pylint Score](https://mperlet.github.io/pybadge/badges/2.50.svg)
+[![Build Status](https://travis-ci.org/mperlet/pomsky.svg?branch=master)](https://travis-ci.org/mperlet/pomsky)
+![pylint Score](https://mperlet.github.io/pybadge/badges/3.93.svg)
 
 ## What is pomsky?
 
