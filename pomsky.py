@@ -18,14 +18,19 @@ import os
 import socket
 import sys
 
+PY2 = True
+
 try:
     # Python 2.x
     from urllib import unquote_plus
     from commands import getstatusoutput as execute
+    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 except Exception:
     # Python 3.x
     from urllib.parse import unquote_plus
     from subprocess import getstatusoutput as execute
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    PY2 = False
 
 # default values
 port, workingfile, debug_cmd, verbose = 8888, "/tmp/pomsky.txt", "du -h *", False
@@ -59,10 +64,6 @@ cmd_buttons = '\n'.join(map(lambda link:
 
 # open socket
 HOST, PORT = '', port
-listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-listen_socket.bind((HOST, PORT))
-listen_socket.listen(1)
 
 def read_content_file():
     """ Read working file """
@@ -80,38 +81,15 @@ def write_content_file(file_content):
     """ Write new working file """
 
     f = open(workingfile, "w")
-    f.write(str(file_content))
+    if hasattr(file_content, "decode"):
+        f.write(str(file_content.decode("utf-8")))
+    else:
+        f.write(str(file_content))
     f.close()
-
-def handle_request(request):
-    """ Executes some programms
-        TODO: Handle routes!!
-    """
-
-    args = request.decode("utf-8").split()
-    header_line = args[0].lower()
-
-    is_get = header_line.startswith("get")
-    is_post = header_line.startswith("post")
-    #import ipdb; ipdb.set_trace()
-    if is_get and str(args[1]).startswith("/run"):
-        cmd_number = str(args[1])[4]
-        os.system("%s &" % additional_cmds[cmd_number])
-
-    if is_post:
-        body = request.decode("utf-8").split("\r\n\r\n")[1]
-        if body.startswith("input="):
-            write_content_file(unquote_plus(body[6:]).encode("utf-8"))
-
-
-
 
 def create_response(content, debug, debug_cmd, cmd_buttons=cmd_buttons):
     """ Creates the http response """
     return """\
-HTTP/1.1 200 OK
-Content-Type: text/html
-
 <html>
 <form action="/" method="post">
 <textarea name="input" style="width:100%%;height:25%%;" placeholder="%(workingfile)s">%(content)s</textarea>
@@ -128,43 +106,73 @@ Content-Type: text/html
               "cmd_buttons": cmd_buttons,
               "workingfile": workingfile}
 
-import time
-benchmark = []
+
+class RequestHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+
+        if self.path.startswith("/run"):
+            cmd_number = self.path[4]
+            os.system("%s &" % additional_cmds[cmd_number])
+
+        self.create_response()
+
+
+    def do_POST(self):
+        body_content = self.read_request_body()
+        print(body_content)
+        if body_content.startswith("input="):
+            write_content_file(unquote_plus(body_content[6:]).encode("utf-8"))
+
+        self.create_response()
+
+    def read_request_body(self):
+        content = self.rfile.read(self.get_length())
+        if hasattr(content, "decode"):
+            return str(content.decode("utf-8"))
+        else:
+            return str(content)
+
+    def create_response(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        ret, debug = execute(debug_cmd)
+        response_body = create_response(read_content_file(), debug, debug_cmd)
+        if PY2:
+            self.wfile.write(response_body)
+        else:
+            self.wfile.write(bytes(response_body, 'utf-8'))
+
+    def finish(self):
+        if not self.wfile.closed:
+            self.wfile.flush()
+        self.wfile.close()
+        self.rfile.close()
+
+    def get_length(self):
+        if PY2:
+            content_length = self.headers.getheaders('content-length')
+            if content_length:
+                length = int(content_length[0])
+            else:
+                length = 0
+        else:
+            content_length = self.headers.get('content-length')
+            if content_length:
+                length = int(content_length)
+            else:
+                length = 0
+        return length
+
+
 def main():
-    """ Entry-point with REPL """
     print("Serving pomsky on 0.0.0.0 port %s ..." % PORT)
     if verbose:
         print('staring pomsky...\nport:\t\t%s\nworkingfile:\t%s\ncommand:\t%s\ndebug:\t\t%s' % (
     PORT, workingfile, additional_cmds, debug_cmd))
-    while True:
-        try:
-            try:
-                client_connection, client_address = listen_socket.accept()
-                request = client_connection.recv(2*1024*1024)
-                start = time.time()
-
-                if verbose:
-                    print(request.decode("utf-8"))
-
-                handle_request(request)
-                ret, debug = execute(debug_cmd)
-
-                http_response = create_response(read_content_file(), debug, debug_cmd)
-
-                client_connection.sendall(http_response.encode('utf-8'))
-                end = (time.time()-start)*1000
-                benchmark.append(end)
-
-                if verbose:
-                    print("time: %s" % (end))
-                    print("benchmark mean= %s" % (sum(benchmark)/len(benchmark)))
-                    print("benchmark min= %s" % (min(benchmark)))
-                    print("benchmark max= %s" % (max(benchmark)))
-            except Exception:
-                e = sys.exc_info()[1]
-                print(e.args[0])
-        finally:
-            client_connection.close()
+    server = HTTPServer(('', PORT), RequestHandler)
+    server.serve_forever()
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 # pomsky - simplest shell web-ui
 [![Build Status](https://travis-ci.org/mperlet/pomsky.svg?branch=master)](https://travis-ci.org/mperlet/pomsky)
-![pylint Score](https://mperlet.github.io/pybadge/badges/3.93.svg)
+![pylint Score](https://mperlet.github.io/pybadge/badges/4.44.svg)
 
 ## What is pomsky?
 
@@ -10,7 +10,7 @@
 
 Pomsky is a very simple and rudimentary service to call programms via http.
 To share files with python you can run `python -m SimpleHTTPServer`, to execute
-programms or shell function call `python pomsky.py`. 
+programms or shell function call `python pomsky.py`.
 
 #### Warning
 
@@ -53,13 +53,13 @@ Example:
 
 Here some examples what you can do with pomsky.
 
-### Video-Downloader 
+### Video-Downloader
 
 ```
 python pomsky.py -w"video_links.txt" -a0"youtube-dl --batch-file video_links.txt"
 ```
 
-That creates a simple web ui for [youtube-dl](https://github.com/rg3/youtube-dl). 
+That creates a simple web ui for [youtube-dl](https://github.com/rg3/youtube-dl).
 
 ### Start, stop and edit a service
 
@@ -75,7 +75,7 @@ The tests are based on curl requests/responses. So you need curl ¯\_(ツ)_/¯.
 ./test.sh && echo "OK" || echo "FAIL"
 ```
 
-You can test against multiple python versions with docker. 
+You can test against multiple python versions with docker.
 
 ```
 ./TestAllPythonVersionsWithDocker.sh
