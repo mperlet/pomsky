@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -- coding: utf-8 --
-"""pomsky v0.0.2
+"""pomsky v0.0.3
 usage: python pomsky.py [options]
 Available options are:
   -h        prints help
@@ -59,7 +59,7 @@ if not os.path.isfile(workingfile):
 
 # create list of html buttons
 cmd_buttons = '\n'.join(map(lambda link:
-                            """<a href="/run%s" target="_blank"><button>Run %s</button></a>""" % (link[0], link[1]),
+                            """<a href="/run%s"><button>Run %s</button></a>""" % (link[0], link[1]),
                             additional_cmds.items()))
 
 # open socket
@@ -110,12 +110,14 @@ def create_response(content, debug, debug_cmd, cmd_buttons=cmd_buttons):
 class RequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-
+        redirect = False
         if self.path.startswith("/run"):
             cmd_number = self.path[4]
             os.system("%s &" % additional_cmds[cmd_number])
+            redirect = True
 
-        self.create_response()
+        self.create_response(redirect)
+
 
 
     def do_POST(self):
@@ -123,8 +125,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         print(body_content)
         if body_content.startswith("input="):
             write_content_file(unquote_plus(body_content[6:]).encode("utf-8"))
-
-        self.create_response()
+        self.create_response(False)
 
     def read_request_body(self):
         content = self.rfile.read(self.get_length())
@@ -133,9 +134,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         else:
             return str(content)
 
-    def create_response(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
+    def create_response(self, redirect):
+        if redirect:
+            self.send_response(302)
+            self.send_header('Location', "/?succes=true")
+        else:
+            self.send_response(200)
+            self.send_header("Content-type", "text/html")
         self.end_headers()
         ret, debug = execute(debug_cmd)
         response_body = create_response(read_content_file(), debug, debug_cmd)
