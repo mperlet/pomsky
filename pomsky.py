@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -- coding: utf-8 --
-"""pomsky v0.0.1
+"""pomsky v0.0.2
 usage: python pomsky.py [options]
 Available options are:
   -h        prints help
