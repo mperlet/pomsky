@@ -1,4 +1,4 @@
-# pomsky - simplest shell web-ui
+# pomsky - lightweight webshell
 [![Build Status](https://travis-ci.org/mperlet/pomsky.svg?branch=master)](https://travis-ci.org/mperlet/pomsky)
 ![pylint Score](https://mperlet.github.io/pybadge/badges/4.81.svg)
 
@@ -9,17 +9,32 @@
 > Pomskies are robust like siberian huskies and small like pomeranians.
 
 Pomsky is a very simple and rudimentary service to call programms via http.
-To share files with python you can run `python -m SimpleHTTPServer`, to execute
-programms or shell function call `python pomsky.py`.
+To share files with python you can run `python -m SimpleHTTPServer`.
+To execute programms or functions call `python pomsky.py`.
+
+Pomsky executes user defined programms. The second main feature is the workingfile.
+You can edit the workingfile via pomsky and use it as input for your scripts or
+programms (See *What can i do with pomsky?*). 
 
 #### Warning
 
 There is **no security** logic in pomsky and it is not at all suitable for production!
 So if you run pomsky as root (not recommended) all commands will be executed as root.  
 
+## Design Goals
+
+### Dependency Free
+You need no extra packages, no easy_install no pip. Pomsky use only standard python librarys.
+
+### Python Version Independent
+Pomsky is tested from python version 2.3 to 3.6. See `Dockerfile` or `.travis.yml` for more information.
+
+### Lightweight
+Pomsky currently has a file size of 12KB.
+
 ## What do i need?
 
-> Just python.
+> Just python. Install via Github.
 
 There is no dependency hell with pomksy. You only need python on your system.
 
@@ -83,7 +98,7 @@ You can test against multiple python versions with docker.
 
 ## Fun
 
-### cython
+### Generate a binary with cython
 Generate a binary with cython via:
 
 ```
@@ -102,12 +117,13 @@ clang $(python3-config --cflags --ldflags) pomsky.c -o pomsky
 - [ ] solve encoding problems
 - [ ] enhance test cases
 - [ ] support for [grumpy](https://github.com/google/grumpy)
+- [ ] HTML in workingfile is not escaped (bug or feature?)
 
 ## License
 
 MIT License
 
-Copyright (c) [2017] [Mathias Perlet]
+Copyright (c) 2017 Mathias Perlet
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
