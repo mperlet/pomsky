@@ -14,7 +14,7 @@ To execute programms or functions call `python pomsky.py`.
 
 Pomsky executes user defined programms. The second main feature is the workingfile.
 You can edit the workingfile via pomsky and use it as input for your scripts or
-programms (See *What can i do with pomsky?*). 
+programms (See *What can i do with pomsky?*).   
 
 #### Warning
 
@@ -110,6 +110,33 @@ clang $(python3-config --cflags --ldflags) pomsky.c -o pomsky
 
 # run pomsky
 ./pomsky
+```
+## Example setup with caddy and autossh
+
+### pomsky and autossh on raspberry pi at home
+
+Start pomsky on the local machine
+```
+python pomsky.py -p8888 -w"video_links.txt" -a0"youtube-dl --batch-file video_links.txt"
+```
+Start `autossh` to open a tunnel on a remote server
+```
+autossh -f -M 9999 -p2222 -NC -R 8888:localhost:8888 my@remoteServer.org
+```
+
+### caddy on the remote servier to make pomsky available with https
+[caddy](https://caddyserver.com/)
+
+Caddyfile for pomsky
+```
+pomksy.remoteServer.org {
+    proxy / localhost:8888
+}
+```
+
+Start caddy
+```
+/usr/local/bin/caddy -conf=/etc/caddy/Caddyfile
 ```
 
 ## TODO-List
